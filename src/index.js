@@ -6,21 +6,11 @@ app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
 });
 
-app.get('/user', (req, res) => {
-  res.send('Hello, User!');
+app.get('/user/:userId/:username', (req, res) => {
+  const { userId, username } = req.params;
+  res.send(`Hello, ${username}! Your ID is ${userId}.`);
 });
 
-app.post('/user', (req, res) => {
-  res.send('User created!');
-});
-
-app.put('/user', (req, res) => {
-  res.send('User updated!');
-});
-
-app.delete('/user', (req, res) => { res.send('User deleted!');
-});
-
-app.patch('/user', (req, res) => {
-  res.send('User patched!');
-});
+app.get(/\/search\/ab?c\/ab.*if\/.*fly$/, (req, res) => {
+  res.send('You have reached the search endpoint with a complex pattern!');
+}); 
