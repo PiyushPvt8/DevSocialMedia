@@ -6,28 +6,21 @@ app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
 });
 
-app.use("/api", (req, res) => {
-  res.send(`This is a test API endpoint! port: ${port}`);
+app.get('/user', (req, res) => {
+  res.send('Hello, User!');
 });
 
-app.use("/test/data", (req, res) => {
-  const data = {
-    message: 'This is some sample data from the API.',
-    timestamp: new Date()
-  };
-  res.json(data);
+app.post('/user', (req, res) => {
+  res.send('User created!');
 });
 
-app.use("/id/user/:id", (req, res) => {
-  const userId = req.params.id;
-  const userData = {
-    id: userId,
-    name: `User ${userId}`,
-    email: `user${userId}@example.com`
-  };
-  res.json(userData);
+app.put('/user', (req, res) => {
+  res.send('User updated!');
 });
 
-app.use("/", (req, res) => {
-  res.send(`Hello from the server! This is the root endpoint. port: ${port}`);
+app.delete('/user', (req, res) => { res.send('User deleted!');
+});
+
+app.patch('/user', (req, res) => {
+  res.send('User patched!');
 });
