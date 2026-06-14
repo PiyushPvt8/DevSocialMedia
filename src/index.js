@@ -8,20 +8,20 @@ app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
 });
 
-app.get('/admin', adminAuth);
-
-app.get('/admin/dashboard', adminAuth, (req, res) => {
-  res.send('Admin dashboard');
+app.use("/getUserData", (req, res, next) => {
+  try { 
+    throw new Error("User data access error");
+      res.send("User data accessed successfully");
+  } catch (error) {
+    console.log(error);
+  }
+  next();
 });
 
-app.get('/user/login',(req, res) => {
-  console.log("User login route called");
-  res.send('User login');
+app.use("/getAdminData", (err, req, res, next) => {
+  throw new Error("Admin data access error");
+  if (err) {
+    console.log("Error in /getAdminData route:", err.message);
+    return res.status(500).send("Internal Server Error");
+  } 
 });
-
-app.get('/user', userAuth);
-
-app.get('/user/dashboard', userAuth, (req, res) => {
-  res.send('User dashboard');
-});
-
