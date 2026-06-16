@@ -4,17 +4,13 @@ const app = express();
 const port = 1998;
 const User = require('./models/user'); 
 
-app.post('/signup', async (req, res) => {
-  const userObject = {
-    firstName: "Gappu",
-    lastName: "Gappandi",
-    email: "gau98@example.com",
-    password: "34562324",
-    age: 7,
-    gender: "Male"
-  };
+app.use(express.json());
 
-  const user = new User(userObject);
+
+app.post('/signup', async (req, res) => {
+  console.log(req.body);
+
+  const user = new User(req.body);
   try {
     await user.save();
     res.status(201).send('User created successfully');
@@ -23,6 +19,27 @@ app.post('/signup', async (req, res) => {
     res.status(500).send(error.message);
   }
 });
+
+
+// app.post('/signup', async (req, res) => {
+//   const userObject = {
+//     firstName: "Bhuttu",
+//     lastName: "Chawanni",
+//     email: "chawanni45@example.com",
+//     password: "345640896",
+//     age: 8,
+//     gender: "Male"
+//   };
+
+//   const user = new User(userObject);
+//   try {
+//     await user.save();
+//     res.status(201).send('User created successfully');
+//   }catch (error) {
+//     console.error(error);
+//     res.status(500).send(error.message);
+//   }
+// });
 
 connectDB().
 then(() => {
