@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const validator = require('validator');
 
 const userSchema = new mongoose.Schema({
     firstName: {
@@ -17,12 +18,21 @@ const userSchema = new mongoose.Schema({
         required: true,
         unique: true,
         lowercase: true,
-        trim: true
-
+        trim: true,
+        validate(value) {
+            if (!validator.isEmail(value)) {
+                throw new Error("Email is not valid: " + value);
+            }
+        }
     },
     password: {
         type: String,
-        required: true
+        required: true,
+        validate(value) {
+            if (!validator.isStrongPassword(value)) {
+                throw new Error("Password is not strong enough: " + value);
+            }
+        }
     },
     age: {
         type: Number,
@@ -39,7 +49,13 @@ const userSchema = new mongoose.Schema({
     },
     photoURL: {
         type: String,
-        default: "https://www.kindpng.com/imgv/ioJmwwJ_dummy-profile-image-jpg-hd-png-download/"
+        default: "https://www.kindpng.com/imgv/ioJmwwJ_dummy-profile-image-jpg-hd-png-download/",
+        validate(value) {
+            if (!validator.isURL(value)) {
+                throw new Error("Photo URL is not valid: " + value);
+            }
+        }
+
     },
     about: {
         type: String,

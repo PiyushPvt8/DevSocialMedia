@@ -3,21 +3,42 @@ const connectDB = require('./config/database');
 const app = express();
 const port = 1998;
 const User = require('./models/user'); 
+const { validateSignUpData } = require('./utils/validation');
+const bcrypt = require('bcrypt');
 
 app.use(express.json());
 
 app.post('/signup', async (req, res) => {
-  console.log(req.body);
 
-  const user = new User(req.body);
+  
   try {
-    await user.save();
-    res.status(201).send('User created successfully');
-  }catch (error) {
-    console.error(error);
-    res.status(500).send(error.message);
-  }
+     validateSignUpData(req);
+     const { firstName, lastName, email, password, age, gender, photoURL, about, skills } = req.body;
+
+      // Hash the password before saving it to the database
+
+      const hashedPassword = await bcrypt.hash(password, 10);
+
+     const user = new User({
+       firstName,
+       lastName,
+       email,
+       password: hashedPassword,
+       age,
+       gender,
+       photoURL,
+       about,
+       skills
+     });
+     await user.save();
+     res.status(201).send('User created successfully');
+    }
+    catch (error) 
+    {
+      res.status(500).send("Error: " + error.message);
+    }
 });
+
 
 app.get("/feed", async (req, res) => {
   try {
@@ -60,7 +81,7 @@ app.patch('/users/:_id', async (req, res) => {
       return res.status(400).send('Invalid updates. Only firstName, lastName, and password can be updated.');
     }
 
-    if (Data?.skills.length > 10) {
+    if (Data.skills?.length > 10) {
       return res.status(400).send('Invalid updates. You can only specify up to 10 skills.');
     }
 
