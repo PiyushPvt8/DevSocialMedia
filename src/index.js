@@ -47,10 +47,22 @@ app.delete('/users', async (req, res) => {
 });
 
 
-app.patch('/users', async (req, res) => {
+app.patch('/users/:_id', async (req, res) => {
   try {
-    const usersId = req.body._id;
+    const usersId = req.params?._id; // Assuming the user ID is passed as a query parameter in the request URL
     const Data = req.body;
+
+    const ALLOWED_UPDATES = ['firstName', 'lastName', 'password', 'skills', 'about', 'photoURL', 'age'];
+
+    const isAllowedUpdate = Object.keys(Data).every((key) => ALLOWED_UPDATES.includes(key));
+
+    if (!isAllowedUpdate) {
+      return res.status(400).send('Invalid updates. Only firstName, lastName, and password can be updated.');
+    }
+
+    if (Data?.skills.length > 10) {
+      return res.status(400).send('Invalid updates. You can only specify up to 10 skills.');
+    }
 
     const updatedUser = await User.findByIdAndUpdate({ _id: usersId }, Data, {
       returnDocument: 'after', // Return the updated document instead of the original one, for better error handling and validation.

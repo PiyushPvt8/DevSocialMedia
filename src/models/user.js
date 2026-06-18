@@ -46,7 +46,7 @@ const userSchema = new mongoose.Schema({
         default: "This is a default about section. You can update it to tell others more about yourself."
     },
     skills: {
-        type: [String]
+        type: [String] // Array of strings to store user skills
     }
 }, { timestamps: true });
 
