@@ -8,9 +8,7 @@ const bcrypt = require('bcrypt');
 
 app.use(express.json());
 
-app.post('/signup', async (req, res) => {
-
-  
+app.post('/signup', async (req, res) => { 
   try {
      validateSignUpData(req);
      const { firstName, lastName, email, password, age, gender, photoURL, about, skills } = req.body;
@@ -37,6 +35,29 @@ app.post('/signup', async (req, res) => {
     {
       res.status(500).send("Error: " + error.message);
     }
+});
+
+app.post('/login', async (req, res) => {
+  try {
+    const { email, password } = req.body;
+
+    const user = await User.findOne({ email: email });
+
+    if (!user) {
+      throw new Error("Invalid credentials");
+    }
+
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+
+    if (!isPasswordValid) {
+      throw new Error("Invalid credentials");
+    }
+
+    res.status(200).send('Login successful');
+  } catch (error) {
+    console.error(error);
+    res.status(500).send("Error: " + error.message);
+  }
 });
 
 
