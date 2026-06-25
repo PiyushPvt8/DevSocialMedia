@@ -122,6 +122,18 @@ app.patch('/users/:_id', async (req, res) => {
   }
 });
 
+connectDB().
+then(() => {
+  console.log('Connected to MongoDB');
+
+  app.listen(port, () => {
+    console.log(`Server is running on port ${port}`);
+  });
+})
+.catch((error) => {
+  console.error('Error connecting to MongoDB:', error);
+});
+
 
 // This route is for testing purposes to find users by email. In a real application, you would typically have a more secure and comprehensive user management system.
 // app.get('/users', async (req, res) => {
@@ -163,14 +175,3 @@ app.patch('/users/:_id', async (req, res) => {
 //   }
 // });
 
-connectDB().
-then(() => {
-  console.log('Connected to MongoDB');
-
-  app.listen(port, () => {
-    console.log(`Server is running on port ${port}`);
-  });
-})
-.catch((error) => {
-  console.error('Error connecting to MongoDB:', error);
-});
