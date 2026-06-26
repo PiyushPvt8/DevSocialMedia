@@ -2,125 +2,19 @@ const express = require('express');
 const connectDB = require('./config/database');
 const app = express();
 const port = 1998;
-const User = require('./models/user'); 
-const { validateSignUpData } = require('./utils/validation');
-const bcrypt = require('bcrypt');
+const cookieParser = require('cookie-parser');
 
 app.use(express.json());
+app.use(cookieParser());
 
-app.post('/signup', async (req, res) => { 
-  try {
-     validateSignUpData(req);
-     const { firstName, lastName, email, password, age, gender, photoURL, about, skills } = req.body;
+const authRouter = require('./routes/authRouter');
+const profileRouter = require('./routes/profileRouter');
+const requestRouter = require('./routes/requestRouter');
 
-      // Hash the password before saving it to the database
+app.use('/', authRouter);
+app.use('/', profileRouter);
+app.use('/', requestRouter);
 
-      const hashedPassword = await bcrypt.hash(password, 10);
-
-     const user = new User({
-       firstName,
-       lastName,
-       email,
-       password: hashedPassword,
-       age,
-       gender,
-       photoURL,
-       about,
-       skills
-     });
-     await user.save();
-     res.status(201).send('User created successfully');
-    }
-    catch (error) 
-    {
-      res.status(500).send("Error: " + error.message);
-    }
-});
-
-app.post('/login', async (req, res) => {
-  try {
-    const { email, password } = req.body;
-
-    const user = await User.findOne({ email: email });
-
-    if (!user) {
-      throw new Error("Invalid credentials");
-    }
-
-    const isPasswordValid = await bcrypt.compare(password, user.password);
-
-    if (!isPasswordValid) {
-      throw new Error("Invalid credentials");
-    }
-
-    res.status(200).send('Login successful');
-  } catch (error) {
-    console.error(error);
-    res.status(500).send("Error: " + error.message);
-  }
-});
-
-
-app.get("/feed", async (req, res) => {
-  try {
-    const users = await User.find({});
-    res.status(200).json(users);
-  } catch (error) {
-    console.error(error);
-    res.status(500).send(error.message);
-  }
-});
-
-app.delete('/users', async (req, res) => {
-  try {
-    const usersId = req.body._id;
-
-    const deletedUser = await User.findByIdAndDelete({ _id: usersId });
-
-    if (!deletedUser) {
-      return res.status(404).send('User not found');
-    }
-
-    res.status(200).send('User deleted successfully');
-  } catch (error) {
-    console.error(error);
-    res.status(500).send(error.message);
-  }
-});
-
-
-app.patch('/users/:_id', async (req, res) => {
-  try {
-    const usersId = req.params?._id; // Assuming the user ID is passed as a query parameter in the request URL
-    const Data = req.body;
-
-    const ALLOWED_UPDATES = ['firstName', 'lastName', 'password', 'skills', 'about', 'photoURL', 'age'];
-
-    const isAllowedUpdate = Object.keys(Data).every((key) => ALLOWED_UPDATES.includes(key));
-
-    if (!isAllowedUpdate) {
-      return res.status(400).send('Invalid updates. Only firstName, lastName, and password can be updated.');
-    }
-
-    if (Data.skills?.length > 10) {
-      return res.status(400).send('Invalid updates. You can only specify up to 10 skills.');
-    }
-
-    const updatedUser = await User.findByIdAndUpdate({ _id: usersId }, Data, {
-      returnDocument: 'after', // Return the updated document instead of the original one, for better error handling and validation.
-      runValidators: true
-    });
-
-    if (!updatedUser) {
-      return res.status(404).send('User not found');
-    }
-
-    res.status(200).send('User updated successfully');
-  } catch (error) {
-    console.error(error);
-    res.status(500).send(error.message);
-  }
-});
 
 connectDB().
 then(() => {

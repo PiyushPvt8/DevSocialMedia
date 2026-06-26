@@ -38,6 +38,11 @@ const validateSignUpData = (req) => {
         throw new Error("Photo URL is not valid.");
     }
 
+    // Validate about
+    if (about && about.length > 500) {
+        throw new Error("About section is too long.");
+    }
+
     // Validate skills
     if (skills && skills.length > 10) {
         throw new Error("You can only specify up to 10 skills.");
