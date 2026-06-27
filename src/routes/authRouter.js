@@ -64,4 +64,11 @@ authRouter.post('/login', async (req, res) => {
 });
 
 
+authRouter.post('/logout', async (req, res) => {
+
+  res.clearCookie('token'); // Clear the token cookie, or, res.cookie('token', null, { expires: new Date(Date.now()) });
+  res.status(200).send('Logout successful');
+});
+
+
 module.exports = authRouter;
