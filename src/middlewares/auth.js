@@ -5,7 +5,7 @@ const userAuth = async (req, res, next) => {
   try {
     const token = req.cookies.token;
     if (!token) {
-      return res.status(401).send('Invalid token');
+      return res.status(401).send('Please login to access this resource');
     }
 
     const decodedObj = jwt.verify(token, 'piysat@project001');
