@@ -76,9 +76,9 @@ userRouter.get("/feed", userAuth, async (req, res) => {
     const loggedInUser = req.user;
 
     const page = parseInt(req.query.page) || 1;
-    let limit = parseInt(req.query.limit) || 1;
+    let limit = parseInt(req.query.limit) || 10;
 
-    limit = limit > 3 ? 3 : limit;
+    limit = limit > 15 ? 15 : limit;
 
     const skip = (page - 1) * limit;
 
