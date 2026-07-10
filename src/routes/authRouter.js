@@ -1,48 +1,71 @@
-const express = require('express');
+const express = require("express");
 const authRouter = express.Router();
-const bcrypt = require('bcrypt');
-const User = require('../models/user');
-const { validateSignUpData } = require('../utils/validation');  
+const bcrypt = require("bcrypt");
+const User = require("../models/user");
+const { validateSignUpData } = require("../utils/validation");
 
-
-authRouter.post('/signup', async (req, res) => { 
+authRouter.post("/signup", async (req, res) => {
   try {
-     validateSignUpData(req);
-     const { firstName, lastName, email, password, age, gender, photoURL, about, skills } = req.body;
+    validateSignUpData(req);
+    const {
+      firstName,
+      lastName,
+      email,
+      password,
+      age,
+      gender,
+      photoURL,
+      about,
+      skills,
+    } = req.body;
 
-      // Hash the password before saving it to the database
+    // Hash the password before saving it to the database
 
-      const hashedPassword = await bcrypt.hash(password, 10);
+    const hashedPassword = await bcrypt.hash(password, 10);
 
-     const user = new User({
-       firstName,
-       lastName,
-       email,
-       password: hashedPassword,
-       age,
-       gender,
-       photoURL,
-       about,
-       skills
-     });
-     const savedUser = await user.save();
+    const user = new User({
+      firstName,
+      lastName,
+      email,
+      password: hashedPassword,
+      age,
+      gender,
+      photoURL,
+      about,
+      skills,
+    });
+    const savedUser = await user.save();
 
-     const token = await savedUser.getJWT();
+    const token = savedUser.getJWT();
 
-     res.cookie('token', token, {expires: new Date(Date.now() + 8 * 3600000)}); //7 days
+    res.cookie("token", token, {
+      expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+    }); //7 days
 
+    res.status(201).json({
+      message: "User created successfully",
 
-
-     res.json({ message: 'User created successfully', user: savedUser });
-    }
-    catch (error) 
-    {
-      res.status(500).send("Error: " + error.message);
-    }
+      user: {
+        _id: savedUser._id,
+        firstName: savedUser.firstName,
+        lastName: savedUser.lastName,
+        email: savedUser.email,
+        age: savedUser.age,
+        gender: savedUser.gender,
+        photoURL: savedUser.photoURL,
+        about: savedUser.about,
+        skills: savedUser.skills,
+      },
+    });
+  } catch (error) {
+    res.status(500).send("Error: " + error.message);
+  }
 });
 
-
-authRouter.post('/login', async (req, res) => {
+authRouter.post("/login", async (req, res) => {
   try {
     const { email, password } = req.body;
 
@@ -53,17 +76,31 @@ authRouter.post('/login', async (req, res) => {
     }
 
     const isPasswordValid = await user.validatePassword(password);
-    
-    if (isPasswordValid) {
-      const token = await user.getJWT();
 
-      res.cookie('token', token, {expires: new Date(Date.now() + 168 * 3600000)}); //7 days
-      res.status(200).send(user);
-    }
-    else {
+    if (isPasswordValid) {
+      const token = user.getJWT();
+
+      res.cookie("token", token, {
+        expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "lax",
+      }); //7 days
+
+      res.status(200).json({
+        _id: user._id,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        email: user.email,
+        age: user.age,
+        gender: user.gender,
+        photoURL: user.photoURL,
+        about: user.about,
+        skills: user.skills,
+      });
+    } else {
       throw new Error("Invalid credentials");
     }
-
   } catch (error) {
     console.error("Login Error:", error);
     console.error(error.stack);
@@ -71,12 +108,13 @@ authRouter.post('/login', async (req, res) => {
   }
 });
 
-
-authRouter.post('/logout', async (req, res) => {
-
-  res.clearCookie('token'); // Clear the token cookie, or, res.cookie('token', null, { expires: new Date(Date.now()) });
-  res.status(200).send('Logout successful');
+authRouter.post("/logout", async (req, res) => {
+  res.clearCookie("token", {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "lax",
+  }); // Clear the token cookie, or, res.cookie('token', null, { expires: new Date(Date.now()) });
+  res.status(200).send("Logout successful");
 });
-
 
 module.exports = authRouter;

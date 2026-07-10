@@ -1,45 +1,42 @@
 require("dotenv").config();
-const express = require('express');
-const connectDB = require('./config/database');
+const express = require("express");
+const connectDB = require("./config/database");
 const app = express();
 const port = process.env.PORT || 1998;
-const cookieParser = require('cookie-parser');
-const cors = require('cors');
-
+const cookieParser = require("cookie-parser");
+const cors = require("cors");
 
 app.use(
   cors({
-    origin: 'http://localhost:5173', // Replace with your frontend URL
+    origin: ["http://localhost:5173", "https://devsocial.lol"], // Replace with your frontend URL
     credentials: true, // Allow cookies to be sent
-  }
-  ));
+  }),
+);
 
 app.use(express.json());
 app.use(cookieParser());
 
-const authRouter = require('./routes/authRouter');
-const profileRouter = require('./routes/profileRouter');
-const requestRouter = require('./routes/requestRouter');
-const userRouter = require('./routes/userRouter');
+const authRouter = require("./routes/authRouter");
+const profileRouter = require("./routes/profileRouter");
+const requestRouter = require("./routes/requestRouter");
+const userRouter = require("./routes/userRouter");
 
-app.use('/', authRouter);
-app.use('/', profileRouter);
-app.use('/', requestRouter);
-app.use('/', userRouter);
+app.use("/", authRouter);
+app.use("/", profileRouter);
+app.use("/", requestRouter);
+app.use("/", userRouter);
 
+connectDB()
+  .then(() => {
+    console.log("Connected to MongoDB");
 
-connectDB().
-then(() => {
-  console.log('Connected to MongoDB');
-
-  app.listen(port, () => {
-    console.log(`Server is running on port ${port}`);
+    app.listen(port, () => {
+      console.log(`Server is running on port ${port}`);
+    });
+  })
+  .catch((error) => {
+    console.error("Error connecting to MongoDB:", error);
   });
-})
-.catch((error) => {
-  console.error('Error connecting to MongoDB:', error);
-});
-
 
 // This route is for testing purposes to find users by email. In a real application, you would typically have a more secure and comprehensive user management system.
 // app.get('/users', async (req, res) => {
@@ -56,12 +53,10 @@ then(() => {
 //   } catch (error) {
 //     console.error(error);
 //     res.status(500).send(error.message);
-//   } 
+//   }
 // });
 
-
-
-//app.post('/signup', async (req, res) => { 
+//app.post('/signup', async (req, res) => {
 //   const userObject = {
 //     firstName: "Bhuttu",
 //     lastName: "Chawanni",
@@ -80,4 +75,3 @@ then(() => {
 //     res.status(500).send(error.message);
 //   }
 // });
-

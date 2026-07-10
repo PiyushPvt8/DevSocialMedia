@@ -1,7 +1,6 @@
 const jwt = require("jsonwebtoken");
 const User = require("../models/user");
 
-
 const userAuth = async (req, res, next) => {
   try {
     const token = req.cookies.token;
@@ -16,13 +15,19 @@ const userAuth = async (req, res, next) => {
     const user = await User.findById(_id);
 
     if (!user) {
-      throw new Error("User not found");
+      return res.status(401).send("User not found");
     }
     req.user = user;
     next();
   } catch (error) {
     console.error("AUTH ERROR:", error);
-    return res.status(401).send(error.message);
+    if (
+      error.name === "JsonWebTokenError" ||
+      error.name === "TokenExpiredError"
+    ) {
+      return res.status(401).send(error.message);
+    }
+    return res.status(500).send("Internal server error");
   }
 };
 
