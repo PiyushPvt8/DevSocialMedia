@@ -1,9 +1,11 @@
 const express = require('express');
 const connectDB = require('./config/database');
 const app = express();
-const port = 1998;
+const port = process.env.PORT_ID;
 const cookieParser = require('cookie-parser');
 const cors = require('cors');
+
+require('dotenv').config();
 
 app.use(
   cors({
