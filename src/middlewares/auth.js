@@ -1,13 +1,13 @@
-const jwt = require('jsonwebtoken');
-const User = require('../models/user');
+const jwt = require("jsonwebtoken");
+const User = require("../models/user");
+
 
 const userAuth = async (req, res, next) => {
   try {
     const token = req.cookies.token;
     if (!token) {
-      return res.status(401).send('Please login to access this resource');
+      return res.status(401).send("Please login to access this resource");
     }
-    
 
     const decodedObj = jwt.verify(token, process.env.JWT_TOKEN_KEY);
 
@@ -16,42 +16,19 @@ const userAuth = async (req, res, next) => {
     const user = await User.findById(_id);
 
     if (!user) {
-      throw new Error('User not found');
-    } 
+      throw new Error("User not found");
+    }
     req.user = user;
     next();
   } catch (error) {
-    res.status(500).send(error.message);
+    console.error("AUTH ERROR:", error);
+    return res.status(401).send(error.message);
   }
 };
 
 module.exports = {
   userAuth,
 };
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 // const adminAuth = (req, res, next) => {
 //     console.log("Admin auth middleware called");
@@ -75,10 +52,10 @@ module.exports = {
 //   } else {
 //     console.log("User auth successful");
 //     next();
-//   }  
+//   }
 // }
 
 // module.exports = {
 //     adminAuth,
 //     userAuth
-// };
+// }
