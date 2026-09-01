@@ -6,6 +6,8 @@ const port = process.env.PORT || 1998;
 const cookieParser = require("cookie-parser");
 const cors = require("cors");
 
+require("./utils/cronjob");
+
 app.use(
   cors({
     origin: ["http://localhost:5173", "https://devsocial.lol"], // Replace with your frontend URL
